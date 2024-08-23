@@ -2,10 +2,21 @@ $(document).ready(function() {
     let currentPage = 0;
     const itemsPerPage = 9; 
     const totalPages = Math.ceil($('.gallery-item').length / itemsPerPage);
+    let currentImageIndex = 0;
 
     function showPage(page) {
         $('.gallery-item').removeClass('active');
         $('.gallery-item').slice(page * itemsPerPage, (page + 1) * itemsPerPage).addClass('active');
+    }
+
+    function showModalImage(index) {
+        const $images = $('.gallery-item img');
+        if (index >= 0 && index < $images.length) {
+            currentImageIndex = index;
+            $('#galleryModal').css('display', 'block');
+            $('#modalImage').attr('src', $images.eq(index).attr('src'));
+            $('#caption').text($images.eq(index).attr('alt'));
+        }
     }
 
     $('.next-btn').click(function() {
@@ -25,18 +36,30 @@ $(document).ready(function() {
     showPage(currentPage);
 
     $('.gallery-item img').click(function() {
-        $('#galleryModal').css('display', 'block');
-        $('#modalImage').attr('src', $(this).attr('src'));
-        $('#caption').text($(this).attr('alt'));
+        currentImageIndex = $('.gallery-item img').index(this);
+        showModalImage(currentImageIndex);
     });
 
     $('.close-modal').click(function() {
         $('#galleryModal').css('display', 'none');
     });
 
-    $(window).click(function(event) {
+    $('#galleryModal').click(function(event) {
         if ($(event.target).is('#galleryModal')) {
-            $('#galleryModal').css('display', 'none');
+            $(this).css('display', 'none');
+        }
+    });
+
+    // Navigate through images with arrow keys
+    $(document).keydown(function(e) {
+        if ($('#galleryModal').css('display') === 'block') {
+            if (e.key === 'ArrowRight') {
+                showModalImage(currentImageIndex + 1);
+            } else if (e.key === 'ArrowLeft') {
+                showModalImage(currentImageIndex - 1);
+            } else if (e.key === 'Escape') {
+                $('#galleryModal').css('display', 'none');
+            }
         }
     });
 });
